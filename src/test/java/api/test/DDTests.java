@@ -71,6 +71,6 @@ public class DDTests {
 		Assert.assertEquals(response.getStatusCode(), 200);
 		
 		logger.info("*************User Deleted*************");
-	}
+		logger.info("************CRUD Successful***************");
 
 }
