@@ -14,12 +14,7 @@ pipeline {
             }
         }
 
-        stage('Checkout Code') {
-            steps {
-                git 'git@github.com:sharansimikore/RestAssured_API_Automation.git'
-            }
-        }
-
+       
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t $IMAGE_NAME .'
