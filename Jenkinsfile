@@ -32,13 +32,16 @@ pipeline {
         }
 
         stage('Push to Docker Hub') {
-            steps {
-                sh '''
-                docker tag $IMAGE_NAME sharansimikore/api-automation
-                docker push sharansimikore/api-automation
-                '''
-            }
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+            sh '''
+            echo $PASS | docker login -u $USER --password-stdin
+            docker tag $IMAGE_NAME sharansimikore/api-automation:latest
+            docker push sharansimikore/api-automation:latest
+            '''
         }
+    }
+}
     }
 
     post {
