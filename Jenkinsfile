@@ -6,26 +6,14 @@ pipeline {
         CONTAINER_NAME = "api-tests-${BUILD_NUMBER}"
     }
 
-    stages {
-
-        stage('Checkout Code') {
-            steps {
-                git 'git@github.com:sharansimikore/RestAssured_API_Automation.git'
-            }
-        }
-
+   
         stage('Debug Files') {
     steps {
         sh 'ls -l'
     }
 }
 
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
-            }
-        }
-
+       
        
         stage('Build Docker Image') {
             steps {
