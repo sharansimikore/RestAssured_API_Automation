@@ -8,6 +8,18 @@ pipeline {
 
     stages {
 
+        stage('Checkout Code') {
+            steps {
+                git 'git@github.com:sharansimikore/RestAssured_API_Automation.git'
+            }
+        }
+
+        stage('Debug Files') {
+    steps {
+        sh 'ls -l'
+    }
+}
+
         stage('Clean Workspace') {
             steps {
                 cleanWs()
@@ -40,7 +52,7 @@ pipeline {
         stage('Push to Docker Hub') {
     steps {
         sh '''
-        docker tag $IMAGE_NAME sharan/api-automation
+        docker tag $IMAGE_NAME sharansimikore/api-automation
         docker push sharansimikore/api-automation
         '''
     }
