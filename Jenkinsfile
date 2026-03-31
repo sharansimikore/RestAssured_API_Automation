@@ -61,12 +61,13 @@ pipeline {
             echo '✅ Pipeline completed successfully!'
             echo "Image pushed: ${DOCKERHUB_REPO}:${BUILD_NUMBER}"
         }
-    }
-
-    failure {
+        failure {
             echo '❌ Pipeline failed!'
             // Archive logs on failure
             archiveArtifacts artifacts: 'reports/**', 
                              allowEmptyArchive: true
         }
+    }
+
+    
 }
