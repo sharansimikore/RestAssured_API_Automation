@@ -9,7 +9,16 @@ pipeline {
 
     stages {
 
-       
+        stage('Prepare Workspace') {
+            steps {
+                script {
+                    echo 'Cleaning workspace...'
+                    cleanWs()
+
+                }
+            }
+        } 
+        
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t $IMAGE_NAME .'
