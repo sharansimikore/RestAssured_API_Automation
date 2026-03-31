@@ -6,14 +6,8 @@ pipeline {
         CONTAINER_NAME = "api-tests-${BUILD_NUMBER}"
     }
 
-   
-        stage('Debug Files') {
-    steps {
-        sh 'ls -l'
-    }
-}
+    stages {
 
-       
        
         stage('Build Docker Image') {
             steps {
@@ -38,13 +32,13 @@ pipeline {
         }
 
         stage('Push to Docker Hub') {
-    steps {
-        sh '''
-        docker tag $IMAGE_NAME sharansimikore/api-automation
-        docker push sharansimikore/api-automation
-        '''
-    }
-}
+            steps {
+                sh '''
+                docker tag $IMAGE_NAME sharansimikore/api-automation
+                docker push sharansimikore/api-automation
+                '''
+            }
+        }
     }
 
     post {
