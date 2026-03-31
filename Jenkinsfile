@@ -4,6 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "sharan/api-automation"
         CONTAINER_NAME = "api-tests-${BUILD_NUMBER}"
+        DOCKERHUB_REPO = "sharansimikore/api-automation"
     }
 
     stages {
@@ -39,17 +40,26 @@ pipeline {
             }
         }
         
-        stage('Push to Docker Hub') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-            sh '''
-            echo $PASS | docker login -u $USER --password-stdin
-            docker tag $IMAGE_NAME sharansimikore/api-automation:latest
-            docker push sharansimikore/api-automation:latest
-            '''
+       stage('Push to Docker Hub') {
+            steps {
+                script {
+                    echo "Pushing to Docker Hub..."
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub',
+                        usernameVariable: 'USER',
+                        passwordVariable: 'PASS'
+                    )]) {
+                        sh '''
+                            echo $PASS | docker login -u $USER --password-stdin
+                            docker tag $IMAGE_NAME ${DOCKERHUB_REPO}:${BUILD_NUMBER}
+                            docker tag $IMAGE_NAME ${DOCKERHUB_REPO}:latest
+                            docker push ${DOCKERHUB_REPO}:${BUILD_NUMBER}
+                            docker push ${DOCKERHUB_REPO}:latest
+                        '''
+                    }
+                }
+            }
         }
-    }
-}
     }
 
     post {
