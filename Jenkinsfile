@@ -78,7 +78,7 @@ pipeline {
 
                 docker run -d \
                 --name ${DEPLOY_CONTAINER} \
-                -p 8080:8080 \
+                -p 8081:8080 \
                 ${DOCKERHUB_REPO}:latest
                 '''
             }
@@ -93,7 +93,6 @@ pipeline {
 
         success {
             echo "✅ Deployment successful!"
-            echo "App running on: http://<EC2-PUBLIC-IP>:8080"
         }
 
         failure {
