@@ -3,9 +3,11 @@ pipeline {
 
     environment {
         IMAGE_NAME = "sharan/api-automation"
-        CONTAINER_NAME = "api-app" // deploy container
+        TEST_CONTAINER_NAME = "api-tests-${BUILD_NUMBER}"
+        DEPLOY_CONTAINER_NAME = "api-app" // persistent container
         DOCKERHUB_REPO = "sharansimikore/api-automation"
         REPORTS_DIR = "${WORKSPACE}/reports"
+        DEPLOY_PORT = 8081
     }
 
     stages {
@@ -19,7 +21,7 @@ pipeline {
             steps {
                 sh """
                 mkdir -p $REPORTS_DIR
-                docker run --name api-tests-${BUILD_NUMBER} \
+                docker run --name $TEST_CONTAINER_NAME \
                     -v $REPORTS_DIR:/app/target/surefire-reports \
                     $IMAGE_NAME
                 """
@@ -59,15 +61,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2 (Same Server)') {
+        stage('Deploy to EC2 (Persistent Container)') {
             steps {
                 sh """
-                # Stop old container if exists
-                docker stop $CONTAINER_NAME || true
-                docker rm $CONTAINER_NAME || true
+                # Stop and remove old deployment container if exists
+                docker stop $DEPLOY_CONTAINER_NAME || true
+                docker rm $DEPLOY_CONTAINER_NAME || true
 
-                # Run new container with mapped port (8081)
-                docker run -d --name $CONTAINER_NAME -p 8081:8080 $IMAGE_NAME
+                # Run new container in detached mode, keep alive
+                docker run -d --name $DEPLOY_CONTAINER_NAME -p $DEPLOY_PORT:8081 $IMAGE_NAME tail -f /dev/null
                 """
             }
         }
@@ -75,12 +77,13 @@ pipeline {
 
     post {
         always {
-            // Clean up test containers only
-            sh 'docker rm -f api-tests-${BUILD_NUMBER} || true'
+            // Remove only test containers
+            sh 'docker rm -f $TEST_CONTAINER_NAME || true'
         }
 
         success {
             echo "✅ Pipeline completed successfully! Docker image pushed and deployed."
+            echo "🌐 Access your API container on port $DEPLOY_PORT"
         }
 
         failure {
