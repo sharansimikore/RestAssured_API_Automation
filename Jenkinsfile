@@ -60,6 +60,17 @@ pipeline {
                         archiveArtifacts artifacts: 'reports/**', fingerprint: true, allowEmptyArchive: true
                     }
                 }
+
+
+
+                stage('SonarQube Analysis') {
+    steps {
+        withSonarQubeEnv('sonarqube-server') {
+            sh 'mvn sonar:sonar'
+        }
+    }
+}
+                
                 stage('Push to Registry') {
                     steps {
                         script {
