@@ -60,7 +60,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonartoken') {
+                withSonarQubeEnv('sonar6.2') {
                     sh 'mvn sonar:sonar'
                 }
             }
