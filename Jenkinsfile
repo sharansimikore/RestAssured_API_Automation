@@ -28,38 +28,38 @@ pipeline {
             }
         }
 
-        stage('Build & Test') {
-            stages {
-                stage('Build Docker Image') {
-                    steps {
-                        script {
-                            retry(2) {
-                                sh "docker build -t $IMAGE_NAME ."
-                            }
-                        }
+       stage('Build Docker Image') {
+            steps {
+                script {
+                    retry(2) {
+                        sh "docker build -t $IMAGE_NAME ."
                     }
                 }
-                stage('Run API Tests') {
-                    steps {
-                        sh """
-                        mkdir -p $REPORTS_DIR
-                        docker run --name $TEST_CONTAINER_NAME \
-                            -v $REPORTS_DIR:/app/target/surefire-reports \
-                            $IMAGE_NAME
-                        """
-                    }
-                    post {
-                        unsuccessful {
-                            error("❌ Tests failed. Stopping pipeline.")
-                        }
-                    }
+            }
+        }
+
+        stage('Run API Tests in Docker') {
+            steps {
+                sh """
+                mkdir -p $REPORTS_DIR
+                docker run --name $TEST_CONTAINER_NAME \
+                    -v $REPORTS_DIR:/app/target/surefire-reports \
+                    $IMAGE_NAME
+                """
+            }
+            post {
+                unsuccessful {
+                    error("❌ Tests failed. Stopping pipeline.")
                 }
-                stage('Publish & Archive Reports') {
-                    steps {
-                        junit allowEmptyResults: true, testResults: 'reports/**/TEST-*.xml'
-                        archiveArtifacts artifacts: 'reports/**', fingerprint: true, allowEmptyArchive: true
-                    }
+            }
+        }
+
+        stage('Publish & Archive Reports') {
+                steps {
+                    junit allowEmptyResults: true, testResults: 'reports/**/TEST-*.xml'
+                    archiveArtifacts artifacts: 'reports/**', fingerprint: true, allowEmptyArchive: true
                 }
+            }
 
 
 
