@@ -58,13 +58,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('sonartoken') {
-                    sh 'mvn sonar:sonar'
-                }
-            }
-        }
+
 
         stage('Push to Registry') {
             steps {
