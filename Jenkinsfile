@@ -73,14 +73,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('sonarqube-server') {
-                    sh 'mvn sonar:sonar'
-                }
-            }
-        }
-
+        
         stage('Push Docker Image to Hub') {
             steps {
                 script {
