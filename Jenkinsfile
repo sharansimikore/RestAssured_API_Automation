@@ -138,7 +138,7 @@ pipeline {
         }
 
         failure {
-            echo "❌ Pipeline FAILED"
+            echo "❌ Pipeline FAILED..."
             archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
         }
     }
