@@ -73,7 +73,6 @@ pipeline {
             }
         }
 
-        
         stage('Push Docker Image to Hub') {
             steps {
                 script {
@@ -109,7 +108,7 @@ pipeline {
                 """
             }
         }
-
+    }   // <-- Missing closing brace for 'stages' added here
 
     post {
         always {
@@ -126,5 +125,4 @@ pipeline {
             archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
         }
     }
-}
 }
