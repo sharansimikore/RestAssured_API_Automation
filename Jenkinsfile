@@ -6,14 +6,11 @@ pipeline {
         disableConcurrentBuilds()
     }
 
-    // Parameter removed, ENV will be hardcoded as we progress
-
     environment {
         IMAGE_NAME = "sharan/api-automation"
         DOCKERHUB_REPO = "sharansimikore/api-automation"
         TEST_CONTAINER_NAME = "api-tests-${BUILD_NUMBER}"
         REPORTS_DIR = "${WORKSPACE}/reports"
-        // TAG and DEPLOY_PORT are defined per environment
     }
 
     triggers {
@@ -28,7 +25,7 @@ pipeline {
             }
         }
 
-       stage('Build Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
                     retry(2) {
@@ -55,39 +52,35 @@ pipeline {
         }
 
         stage('Publish & Archive Reports') {
-                steps {
-                    junit allowEmptyResults: true, testResults: 'reports/**/TEST-*.xml'
-                    archiveArtifacts artifacts: 'reports/**', fingerprint: true, allowEmptyArchive: true
+            steps {
+                junit allowEmptyResults: true, testResults: 'reports/**/TEST-*.xml'
+                archiveArtifacts artifacts: 'reports/**', fingerprint: true, allowEmptyArchive: true
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonartoken') {
+                    sh 'mvn sonar:sonar'
                 }
             }
-
-
-
-                stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('sonartoken') {
-            sh 'mvn sonar:sonar'
         }
-    }
-}
-                
-                stage('Push to Registry') {
-                    steps {
-                        script {
-                            withCredentials([usernamePassword(
-                                credentialsId: 'dockerhub',
-                                usernameVariable: 'USER',
-                                passwordVariable: 'PASS'
-                            )]) {
-                                sh """
-                                echo \$PASS | docker login -u \$USER --password-stdin
-                                docker tag $IMAGE_NAME ${DOCKERHUB_REPO}:${BUILD_NUMBER}
-                                docker tag $IMAGE_NAME ${DOCKERHUB_REPO}:latest
-                                docker push ${DOCKERHUB_REPO}:${BUILD_NUMBER}
-                                docker push ${DOCKERHUB_REPO}:latest
-                                """
-                            }
-                        }
+
+        stage('Push to Registry') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub',
+                        usernameVariable: 'USER',
+                        passwordVariable: 'PASS'
+                    )]) {
+                        sh """
+                        echo \$PASS | docker login -u \$USER --password-stdin
+                        docker tag $IMAGE_NAME ${DOCKERHUB_REPO}:${BUILD_NUMBER}
+                        docker tag $IMAGE_NAME ${DOCKERHUB_REPO}:latest
+                        docker push ${DOCKERHUB_REPO}:${BUILD_NUMBER}
+                        docker push ${DOCKERHUB_REPO}:latest
+                        """
                     }
                 }
             }
@@ -138,7 +131,7 @@ pipeline {
                 """
             }
         }
-    }
+    }   // <-- Closes 'stages' block
 
     post {
         always {
@@ -152,4 +145,4 @@ pipeline {
             archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
         }
     }
-}
+}   // <-- Closes 'pipeline' block
