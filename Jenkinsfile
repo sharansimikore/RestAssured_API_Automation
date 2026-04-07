@@ -58,11 +58,17 @@ pipeline {
             }
         }
 
-                stage('Checkstyle Analysis') {
-            steps{
-                sh 'mvn checkstyle:checkstyle'
-            }
-        }
+        stage('Checkstyle Analysis (Docker)') {
+    steps {
+        sh """
+        docker run --rm \
+            -v $WORKSPACE:/app \
+            -w /app \
+            maven:3.9.9-eclipse-temurin-17 \
+            mvn checkstyle:checkstyle
+        """
+    }
+}
 
         stage("Sonar Code Analysis") {
             environment {
